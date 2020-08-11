@@ -12,6 +12,7 @@ use Softwayr\TemplateEngine\Exceptions\TemplateViewNotFoundException;
 class TemplateEngine {
 	
 	private static $tags = [];
+	private static $file_ext = ".view.html";
 	
 	public static function tag( String $tag_name, String $tag_value = "" ) {
 		if( $tag_value && key_exists( $tag_name, TemplateEngine::$tags ) )
@@ -38,16 +39,18 @@ class TemplateEngine {
 		return $text;
 	}
 	
-	public static function view( String $file_name, array $tags = [] ) {
-		if( file_exists( $file_name . ".view.php" ) )
-			if( ( Cache::exists( $file_name ) && Cache::outdated( $file_name ) ) || !Cache::exists( $file_name ) )
-				return Cache::cache( $file_name, TemplateEngine::render( file_get_contents( $file_name . ".view.php" ), $tags ) );
-			return Cache::cache( $file_name );
-		throw new TemplateViewNotFoundException( $file_name );
+	public static function view( String $view_name, array $tags = [] ) {
+		if( file_exists( $view_name . TemplateEngine::file_ext() ) )
+			if( ( Cache::exists( $view_name ) && Cache::outdated( $view_name ) ) || !Cache::exists( $view_name ) )
+				return Cache::cache( $view_name, TemplateEngine::render( file_get_contents( $view_name . TemplateEngine::file_ext() ), $tags ) );
+			return Cache::cache( $view_name );
+		throw new TemplateViewNotFoundException( $view_name );
 	}
 	
-	public static function viewModified( String $file_name ) {
-		return filemtime( $file_name . ".view.php" );
+	public static function viewModified( String $view_name ) {
+		return filemtime( $view_name . TemplateEngine::file_ext() );
 	}
+	
+	public static function file_ext():String { return TemplateEngine::$file_ext; }
 }
 
